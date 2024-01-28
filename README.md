@@ -1,4 +1,4 @@
-# anvil
+# Anvil
 Anvil is a single-file build tool for multi-file C projects, 
 inspired by tsoding's [nobuild](https://github.com/tsoding/nobuild).
 

@@ -31,4 +31,4 @@ Anvil searches all the folders in `source_dirs` for `.c` files, compiles them to
 As of right now, Anvil is still in its pretty early stages, and it's limited in what it can do. For projects with more complex build steps or other languages, 
 I'd recommend using more flexible build tools.
 
-As always, pull requests are welcome! I'd love to improve this as much as I can while sticking to the original goal of a small, single-file build tool.
+As always, pull requests are welcome! I'd love to improve this as much as I can while sticking to the original goal of a small, single-file tool.

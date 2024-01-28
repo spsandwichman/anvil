@@ -5,8 +5,8 @@ inspired by tsoding's [nobuild](https://github.com/tsoding/nobuild).
 Anvil is a build tool small enough to be **included in your project as source code**.
 Just modify Anvil's config to suit your project! All that's left is to compile and run it:
 ```sh
-$ cc ./anvil.c -o heph
-$ ./heph
+$ cc ./anvil.c -o anvil
+$ ./anvil
 ```
 and viola! You can try this out on the example project included!
 

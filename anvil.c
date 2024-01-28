@@ -19,13 +19,13 @@ char* link_flags    = "";       // (optional) linker flags
 int transparency_mode = 0;      // (optional) if not zero, print the executed commands instead of nice messages
 
 //////////////////////////////////////////////////////////////////////////////
+/*
+    TODO read dependency files for separate compilation
 
-// TODO read dependency files for separate compilation
+    here be dragons
+*/
 
 // this is basically my orbit.h header but slimmed down and copied in
-// because single-file means single-file
-
-// here be dragons
 
 #include <stdlib.h>
 #include <stdint.h>

@@ -6,8 +6,8 @@ All you need to do is copy `hephaestus.c` into your project and quickly configur
 
 From now on, all you need to do to build your project is
 ```sh
-$ cc ./hephaestus.c -o hephaestus
-$ ./hephaestus
+$ cc ./hephaestus.c -o heph
+$ ./heph
 ```
 and viola! Feel free to try this out on the example project included!
 

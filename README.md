@@ -1,19 +1,20 @@
-# hephaestus
-Hephaestus is a single-file build tool for multi-file C projects, 
+# anvil
+Anvil is a single-file build tool for multi-file C projects, 
 inspired by tsoding's [nobuild](https://github.com/tsoding/nobuild).
 
-All you need to do is copy `hephaestus.c` into your project folder and configure it.
+All you need to do is copy `anvil.c` into your project and quickly configure it.
+
 
 From now on, all you need to do to build your project is
 ```sh
-$ cc ./hephaestus.c -o heph
+$ cc ./anvil.c -o heph
 $ ./heph
 ```
 and viola! Feel free to try this out on the example project included!
 
 # how it works
 
-To use Hephaestus, you have to provide it with this information:
+To use Anvil, you have to provide it with this information:
 
 ```c
 char* project_name  = "";   // final executable name 
@@ -27,5 +28,5 @@ char* link_flags    = "";   // (optional) linker flags
 int transparency_mode = 0;  // (optional) if not zero, print the executed commands instead of nice messages
 ```
 
-Hephaestus searches all the folders in `source_dirs` for `.c` files, compiles them to
+Anvil searches all the folders in `source_dirs` for `.c` files, compiles them to
 `build_dir`, links them all, and creates an executable in `output_dir`.

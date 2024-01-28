@@ -6,5 +6,5 @@
 cachegrind*
 build/*
 build
-hephaestus
-hephaestus.exe
+anvil
+anvil.exe

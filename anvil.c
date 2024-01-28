@@ -1,8 +1,10 @@
-// to build the project, just compile and run this file!
+/*
 
-// hephaestus by sandwichman - single-file, slim build tool for multi-file C projects
+    anvil 🔨 by sandwichman - single-file, slim build tool for multi-file C projects
 
-//////////////////////////////////////////////////////////////////////////////
+    to build the project, just compile and run this file!
+
+*/
 
 char* project_name  = "example";// final executable name
 char* cc            = "gcc";    // c compiler / linker to use

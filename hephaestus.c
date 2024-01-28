@@ -4,18 +4,17 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
-char* project_name  = "example"; // final executable name
-
-char* cc            = "gcc"; // c compiler / linker
-char* flags         = "-O1"; // c compiler flags
-char* source_dirs[] = { // folders to search for '.c' files
+char* project_name  = "example";// final executable name
+char* cc            = "gcc";    // c compiler / linker to use
+char* source_dirs[] = {         // source code folders
         "example_src",
 };
-char* include_dir   = "example_src"; // (optional) specify an include folder
-char* build_dir     = "build"; // folder to put '.o' files in. if blank, it will create a folder at './build' if it does not exist already
-char* output_dir    = "./"; // folder to put the final executable in
-char* link_flags    = ""; // extra linker flags
-int transparency_mode = 0; // if not zero, the real commands being executed will print instead of hephaestus's messages.
+char* build_dir     = "build";  // folder for intermediate .o files
+char* output_dir    = "";       // (optional, defaults to the main folder) folder to drop the final executable in
+char* flags         = "-O1";    // (optional) c compiler flags
+char* include_dir   = "";       // (optional) c include path
+char* link_flags    = "";       // (optional) linker flags
+int transparency_mode = 0;      // (optional) if not zero, print the executed commands instead of nice messages
 
 //////////////////////////////////////////////////////////////////////////////
 

@@ -2,17 +2,15 @@
 Anvil is a single-file build tool for multi-file C projects, 
 inspired by tsoding's [nobuild](https://github.com/tsoding/nobuild).
 
-All you need to do is copy `anvil.c` into your project and quickly configure it.
-
-
-From now on, all you need to do to build your project is
+Anvil is a build tool small enough to be *included in your project directly* as source code.
+Just modify Anvil's config to suit your project! All that's left is to compile and run it:
 ```sh
 $ cc ./anvil.c -o heph
 $ ./heph
 ```
-and viola! Feel free to try this out on the example project included!
+and viola! You can try this out on the example project included!
 
-# how it works
+# Usage
 
 To use Anvil, you have to provide it with this information:
 

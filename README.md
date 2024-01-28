@@ -1,14 +1,13 @@
 # Anvil
-Anvil is a single-file build tool for multi-file C projects, 
-inspired by tsoding's [nobuild](https://github.com/tsoding/nobuild).
+Anvil is a single-file build tool for C, inspired by tsoding's [nobuild](https://github.com/tsoding/nobuild).
 
-Anvil is a build tool for C that's small enough to be **included in your project as source code**.
-Just modify Anvil's settings to suit your project! Afterwards, just compile and run it:
+Anvil is a build tool that's small enough to be **included in your project as source code**.
+Just modify Anvil's settings to suit your project, then compile and run it:
 ```sh
 $ cc ./anvil.c -o anvil
 $ ./anvil
 ```
-and viola! You can try this out on the example project included!
+and viola! You can try this out on the example project included, or see it in action in the compiler for the [Mars programming language](https://github.com/orbit-systems/mars/blob/main/anvil.c).
 
 # Usage
 Anvil needs this information about your project.
@@ -32,4 +31,4 @@ Anvil searches all the folders in `source_dirs` for `.c` files, compiles them to
 As of right now, Anvil is still in its pretty early stages, and it's limited in what it can do. For projects with more complex build steps or other languages, 
 I'd recommend using more flexible build tools.
 
-As always, pull requests are welcome! I'd love to improve this as much as I can while sticking to the original goal of a small, single-file build tool.
+As always, pull requests are welcome! I'd love to improve this as much as I can while sticking to the original goal of a small, single-file tool.

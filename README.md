@@ -29,6 +29,7 @@ Anvil searches all the folders in `source_dirs` for `.c` files, compiles them to
 `build_dir`, links them all, and creates an executable in `output_dir`.
 
 # What's the catch?
-As of right now, Anvil is still in its pretty early stages. For projects with more complex build steps or other languages, I'd recommend using more flexible build tools.
+As of right now, Anvil is still in its pretty early stages, and it's limited in what it can do. For projects with more complex build steps or other languages, 
+I'd recommend using more flexible build tools.
 
-If you have ideas for improving Anvil, pull requests are welcome!
+As always, pull requests are welcome! I'd love to improve this as much as I can while sticking to the original goal of a small, single-file build tool.

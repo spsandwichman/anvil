@@ -32,6 +32,7 @@ int transparency_mode = 0; // if not zero, the real commands being executed will
 #include <stdio.h>
 #include <sys/stat.h>
 #include <dirent.h>
+#include <unistd.h>
 
 typedef uint32_t u32;
 typedef uint8_t  u8;

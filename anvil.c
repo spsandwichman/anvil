@@ -1,26 +1,30 @@
 /*
 
-    anvil 🔨 by sandwichman - single-file, slim build tool for multi-file C projects
+    anvil 🔨 by sandwichman - single-file, slim build tool for C
 
     to build the project, just compile and run this file!
 
 */
 
-char* project_name  = "example";// final executable name
-char* cc            = "gcc";    // c compiler / linker to use
-char* source_dirs[] = {         // source code folders
+char* project_name  = "example"; // final executable name
+char* build_dir     = "build";   // folder for intermediate .o files
+char* source_dirs[] = {          // source code folders
         "example_src",
 };
-char* build_dir     = "build";  // folder for intermediate .o files
-char* output_dir    = "";       // (optional, defaults to the main folder) folder to drop the final executable in
-char* flags         = "-O1";    // (optional) c compiler flags
-char* include_dir   = "";       // (optional) c include path
-char* link_flags    = "";       // (optional) linker flags
-int transparency_mode = 0;      // (optional) if not zero, print the executed commands instead of nice messages
+
+char* cc            = "gcc";     // (optional) c compiler / linker to use (defaults to what anvil.c is compiled with)
+char* output_dir    = "";        // (optional) folder to drop the final executable in (defaults to the main folder)
+char* flags         = "-O1";     // (optional) c compiler flags
+char* include_dir   = "";        // (optional) c include path
+char* link_flags    = "";        // (optional) linker flags
+
+int transparency_mode = 0;       // (optional) if not zero, print the executed commands instead of nice messages
 
 //////////////////////////////////////////////////////////////////////////////
 /*
-    TODO read dependency files for separate compilation
+    TODO setting for recursive search in source code folders
+    TODO read dependency files for incremental compilation
+    TODO maybe support for multiple build recipes
 
     here be dragons
 */
@@ -35,8 +39,16 @@ int transparency_mode = 0;      // (optional) if not zero, print the executed co
 #include <dirent.h>
 #include <unistd.h>
 
+typedef uint64_t u64;
 typedef uint32_t u32;
+typedef uint16_t u16;
 typedef uint8_t  u8;
+typedef int64_t  i64;
+typedef int32_t  i32;
+typedef int16_t  i16;
+typedef int8_t   i8;
+typedef float f32;
+typedef double f64;
 typedef uint8_t  bool;
 #define false ((bool)0)
 #define true ((bool)!false)
@@ -113,10 +125,6 @@ bool fs_get_subfiles(fs_file* file, fs_file* file_array);
 char cmd[MAX_CMD] = {0};
 char objects[MAX_CMD] = {0};
 
-void clear(char* buf) {
-    while(*buf != '\0') *(buf++) = '\0';
-}
-
 // realpath()s of the source directories that i need because filesystem shit is so dumb
 char* real_src_dirs[sizeof(source_dirs) / sizeof(*source_dirs)];
 char* real_build_dir;
@@ -130,6 +138,10 @@ char* real_output_dir;
     exit(EXIT_FAILURE);      \
 } while (0)
 
+void clear(char* buf) {
+    while(*buf != '\0') *(buf++) = '\0';
+}
+
 int execute(char* command) {
     if (transparency_mode) printf("%s\n", command);
     return system(command);
@@ -137,15 +149,29 @@ int execute(char* command) {
 
 int main() {
 
+    // detect compiler if not provided
+    if (cc[0] == '\0') {
+#       if defined(__clang__)
+            cc = "clang";
+#       elif defined(_MSC_VER)
+            cc = "cl.exe";
+#       elif defined(__GNUC__)
+            cc = "gcc";
+#       elif
+            error("cannot detect c compiler, please explicitly set 'cc' in anvil.c");
+#       endif
+        printf("compiler detected '%s'\n", cc);
+    }
+
+    // check params and set defaults
+    if (build_dir[0] == '\0') error("an explicit build path must be provided");
+    if (output_dir[0] == '\0') output_dir = "./";
+
     // translate relative paths into realpaths (im so fucking done)
     real_output_dir = malloc(PATH_MAX);
-    if (output_dir[0] == '\0') output_dir = "./";
     realpath(output_dir, real_output_dir);
 
     real_build_dir = malloc(PATH_MAX);
-    if (build_dir[0] == '\0') {
-        error("an explicit build path must be provided");
-    }
     realpath(build_dir, real_build_dir);
 
     real_include_dir = malloc(PATH_MAX);
@@ -178,7 +204,6 @@ int main() {
 
         real_src_dirs[i] = malloc(PATH_MAX);
         realpath(source_dirs[i], real_src_dirs[i]);
-//        printf("\t%s\n", real_src_dirs[i]);
         fs_drop(&source_directory);
     }
 
@@ -501,7 +526,7 @@ int fs_subfile_count(fs_file* file) {
     }
 
     closedir(d);
-    return count; // account for the . and .. dirs
+    return count; // account for default directories
 }
 
 bool fs_get_subfiles(fs_file* file, fs_file* file_array) {

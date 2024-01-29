@@ -13,14 +13,16 @@ and viola! You can try this out on the example project included, or see it in ac
 Anvil needs this information about your project.
 
 ```c
-char* project_name  = "";   // final executable name 
-char* cc            = "";   // c compiler / linker to use
+char* project_name  = "";   // final program name 
 char* source_dirs[] = {""}; // source code folders
-char* build_dir     = "";   // folder for intermediate .o files
-char* output_dir    = "";   // (optional, defaults to the main folder) folder to drop the final executable in
+char* build_dir     = "";   // folder for intermediate object files
+
+char* cc            = "";   // (optional) c compiler / linker to use (defaults to what anvil.c is compiled with)
+char* output_dir    = "";   // (optional) folder to drop the final executable in (defaults to the main folder)
 char* flags         = "";   // (optional) c compiler flags
 char* include_dir   = "";   // (optional) c include path
 char* link_flags    = "";   // (optional) linker flags
+
 int transparency_mode = 0;  // (optional) if not zero, print the executed commands instead of nice messages
 ```
 

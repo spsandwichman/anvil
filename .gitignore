@@ -3,8 +3,9 @@
 .idea/*
 .idea
 *.exe
-cachegrind*
 build/*
 build
 anvil
 anvil.exe
+example
+example.exe

@@ -12,9 +12,9 @@ char* source_dirs[] = {          // source code folders
         "example_src",
 };
 
-char* cc            = "gcc";     // (optional) c compiler / linker to use (defaults to what anvil.c is compiled with)
+char* cc            = "";     // (optional) c compiler / linker to use (defaults to what anvil.c is compiled with)
 char* output_dir    = "";        // (optional) folder to drop the final executable in (defaults to the main folder)
-char* flags         = "-O1";     // (optional) c compiler flags
+char* flags         = "";     // (optional) c compiler flags
 char* include_dir   = "";        // (optional) c include path
 char* link_flags    = "";        // (optional) linker flags
 
@@ -30,14 +30,34 @@ int transparency_mode = 0;       // (optional) if not zero, print the executed c
 */
 
 // this is basically my orbit.h header but slimmed down and copied in
+#ifdef _WIN32
+#define _CRT_SECURE_NO_WARNINGS
+#endif
 
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
 #include <stdio.h>
 #include <sys/stat.h>
+#ifdef _WIN32
+#define VC_EXTRALEAN
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#include <direct.h>
+
+#define __S_ISTYPE(mode, mask)  (((mode) & S_IFMT) == (mask))
+#define S_ISREG(mode)    __S_ISTYPE((mode), S_IFREG)
+#define S_ISDIR(mode)    __S_ISTYPE((mode), S_IFDIR)
+
+#define fs_mkdir _mkdir
+#define chdir _chdir
+#define PATH_MAX 260
+#else
 #include <dirent.h>
 #include <unistd.h>
+
+#define fs_mkdir mkdir
+#endif
 
 typedef uint64_t u64;
 typedef uint32_t u32;
@@ -131,12 +151,19 @@ char* real_build_dir;
 char* real_include_dir;
 char* real_output_dir;
 
+#ifdef _MSC_VER
+#define error(msg, ...) do { \
+    printf("error: %s\n", (msg));       \
+    exit(EXIT_FAILURE);      \
+} while (0)
+#else
 #define error(msg, ...) do { \
     printf("error: ");       \
-    printf(msg __VA_OPT__(,) __VA_ARGS__); \
+    printf((msg) __VA_OPT__(,) __VA_ARGS__); \
     printf("\n");            \
     exit(EXIT_FAILURE);      \
 } while (0)
+#endif
 
 void clear(char* buf) {
     while(*buf != '\0') *(buf++) = '\0';
@@ -238,6 +265,8 @@ int main() {
         fs_drop(&source_directory);
     }
 
+    printf("Total files to build: %d\n", total_files_to_build);
+
     // build the individual object files
     int file_num = 1;
     FOR_RANGE(i, 0, sizeof(source_dirs) / sizeof(*source_dirs)) {
@@ -290,7 +319,9 @@ int main() {
             }
         }
 
+#ifndef _WIN32
         FOR_RANGE(j, 0, src_dir_subfile_count) fs_drop(&src_dir_subfiles[j]);
+#endif
         free(src_dir_subfiles);
 
         fs_drop(&source_directory);
@@ -299,7 +330,11 @@ int main() {
     if (!transparency_mode) printf("linking using %s with flags %s\n", cc, link_flags);
 
     char output_name[PATH_MAX] = {0};
+#ifdef _WIN32
+    sprintf(output_name, "%s/%s.exe",  real_output_dir, project_name);
+#else
     sprintf(output_name, "%s/%s",  real_output_dir, project_name);
+#endif
 
     if (fs_exists(to_string(output_name))) {
         strcat(cmd, "rm ");
@@ -311,6 +346,7 @@ int main() {
     sprintf(cmd, "%s %s -o %s %s",
         cc, objects, output_name, link_flags
     );
+    printf("objects: %s", objects);
     if (system(cmd)) {
         error("linking failed");
     }
@@ -392,7 +428,6 @@ bool fs_exists(string path) {
 bool fs_get(string path, fs_file* file) {
 
     struct stat statbuffer;
-
     {
         bool exists;
         if (can_be_cstring(path)) {
@@ -402,11 +437,15 @@ bool fs_get(string path, fs_file* file) {
             exists = stat(path_cstr, &statbuffer) == 0;
             free(path_cstr);
         }
-        if (!exists) return false;
+        if (!exists)
+        {
+            return false;
+        }
     }
 
     file->path = string_clone(path);
     file->size = statbuffer.st_size;
+
 
 #ifdef S_ISREG
     if      (S_ISREG(statbuffer.st_mode))  file->type = oft_regular;
@@ -437,15 +476,15 @@ bool fs_create(string path, fs_file_type type, fs_file* file) {
     switch (type) {
         case oft_directory:
             if (can_be_cstring(path)) {
-                creation_success = mkdir(path.raw
-#if !(defined(MINGW32) || defined(__MINGW32__))
+                creation_success = fs_mkdir(path.raw
+#if !(defined(MINGW32) || defined(__MINGW32__) || defined(_WIN32))
                         , S_IRWXU | S_IRWXG | S_IRWXO
 #endif
                 ) == 0;
             } else {
                 char* path_cstr = clone_to_cstring(path);
-                creation_success = mkdir(path_cstr
-#if !(defined(MINGW32) || defined(__MINGW32__))
+                creation_success = fs_mkdir(path_cstr
+#if !(defined(MINGW32) || defined(__MINGW32__) || defined(_WIN32))
                         , S_IRWXU | S_IRWXG | S_IRWXO
 #endif
                 ) == 0;
@@ -507,6 +546,25 @@ int fs_subfile_count(fs_file* file) {
     int count = 0;
     if (!fs_is_directory(file)) return 0;
 
+#ifdef _WIN32
+    HANDLE find = NULL;
+    WIN32_FIND_DATA find_data = {0};
+
+    char* path_cstr = clone_to_cstring(file->path);
+    char path[MAX_PATH] = {0};
+    snprintf(path, MAX_PATH, "%s\\*", path_cstr);
+    find = FindFirstFile(path, &find_data);
+    free(path_cstr);
+
+    if(find != INVALID_HANDLE_VALUE){
+        do {
+            if (strcmp(find_data.cFileName, ".") == 0) continue;
+            if (strcmp(find_data.cFileName, "..") == 0) continue;
+            count++;
+        } while(FindNextFile(find, &find_data));
+        FindClose(find);
+    }
+#else
     DIR* d;
     struct dirent* dir;
 
@@ -526,6 +584,7 @@ int fs_subfile_count(fs_file* file) {
     }
 
     closedir(d);
+#endif
     return count; // account for default directories
 }
 
@@ -536,6 +595,19 @@ bool fs_get_subfiles(fs_file* file, fs_file* file_array) {
 
     if (!fs_is_directory(file)) return false;
 
+#ifdef _WIN32
+    HANDLE find = NULL;
+    WIN32_FIND_DATA find_data = {0};
+
+    char* path_cstr = clone_to_cstring(file->path);
+    char path[MAX_PATH] = {0};
+    snprintf(path, MAX_PATH, "%s\\*", path_cstr);
+    find = FindFirstFile(path, &find_data);
+    printf("Finding first file for: %s\n", path);
+    free(path_cstr);
+
+    if(find == INVALID_HANDLE_VALUE) return false;
+#else
     DIR* directory;
     struct dirent* dir_entry;
 
@@ -547,7 +619,7 @@ bool fs_get_subfiles(fs_file* file, fs_file* file_array) {
         free(path_cstr);
     }
     if (!directory) return false;
-
+#endif
     if (can_be_cstring(file->path)) {
         chdir(file->path.raw);
     } else {
@@ -555,7 +627,24 @@ bool fs_get_subfiles(fs_file* file, fs_file* file_array) {
         chdir(path_cstr);
         free(path_cstr);
     }
-
+#ifdef _WIN32
+    int i = 0;
+    printf("Finding next file for %s\n", find_data.cFileName);
+    do
+    {
+        if (strcmp(find_data.cFileName, ".") == 0) continue;
+        if (strcmp(find_data.cFileName, "..") == 0) continue;
+        printf("%s\n", find_data.cFileName);
+        string path = to_string(find_data.cFileName);
+        printf("%s\n", path.raw);
+        bool success = fs_get(path, &file_array[i]);
+        if (!success) {
+            chdir(file_realpath);
+            return false;
+        }
+        i++;
+    } while(FindNextFile(find, &find_data));
+#else
     for (int i = 0; (dir_entry = readdir(directory)) != NULL;) {
         if (strcmp(dir_entry->d_name, ".") == 0) continue;
         if (strcmp(dir_entry->d_name, "..") == 0) continue;
@@ -572,10 +661,15 @@ bool fs_get_subfiles(fs_file* file, fs_file* file_array) {
         // string_free(path);
         i++;
     }
+#endif
 
     chdir(file_realpath);
     chdir("..");
 
+#ifdef _WIN32
+    FindClose(find);
+#else
     closedir(directory);
+#endif
     return true;
 }

@@ -12,9 +12,9 @@ char* source_dirs[] = {          // source code folders
         "example_src",
 };
 
-char* cc            = "";     // (optional) c compiler / linker to use (defaults to what anvil.c is compiled with)
+char* cc            = "gcc";     // (optional) c compiler / linker to use (defaults to what anvil.c is compiled with)
 char* output_dir    = "";        // (optional) folder to drop the final executable in (defaults to the main folder)
-char* flags         = "";     // (optional) c compiler flags
+char* flags         = "-O1";     // (optional) c compiler flags
 char* include_dir   = "";        // (optional) c include path
 char* link_flags    = "";        // (optional) linker flags
 
@@ -265,8 +265,6 @@ int main() {
         fs_drop(&source_directory);
     }
 
-    printf("Total files to build: %d\n", total_files_to_build);
-
     // build the individual object files
     int file_num = 1;
     FOR_RANGE(i, 0, sizeof(source_dirs) / sizeof(*source_dirs)) {
@@ -346,7 +344,6 @@ int main() {
     sprintf(cmd, "%s %s -o %s %s",
         cc, objects, output_name, link_flags
     );
-    printf("objects: %s", objects);
     if (system(cmd)) {
         error("linking failed");
     }
@@ -437,15 +434,11 @@ bool fs_get(string path, fs_file* file) {
             exists = stat(path_cstr, &statbuffer) == 0;
             free(path_cstr);
         }
-        if (!exists)
-        {
-            return false;
-        }
+        if (!exists) return false;
     }
 
     file->path = string_clone(path);
     file->size = statbuffer.st_size;
-
 
 #ifdef S_ISREG
     if      (S_ISREG(statbuffer.st_mode))  file->type = oft_regular;

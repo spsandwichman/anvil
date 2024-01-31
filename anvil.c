@@ -625,9 +625,7 @@ bool fs_get_subfiles(fs_file* file, fs_file* file_array) {
     {
         if (strcmp(find_data.cFileName, ".") == 0) continue;
         if (strcmp(find_data.cFileName, "..") == 0) continue;
-        printf("%s\n", find_data.cFileName);
         string path = to_string(find_data.cFileName);
-        printf("%s\n", path.raw);
         bool success = fs_get(path, &file_array[i]);
         if (!success) {
             chdir(file_realpath);

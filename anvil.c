@@ -46,6 +46,8 @@ int transparency_mode = 0;       // (optional) if not zero, print the executed c
 #include <direct.h>
 
 #define __S_ISTYPE(mode, mask)  (((mode) & S_IFMT) == (mask))
+#undef S_ISREG
+#undef S_ISDIR
 #define S_ISREG(mode)    __S_ISTYPE((mode), S_IFREG)
 #define S_ISDIR(mode)    __S_ISTYPE((mode), S_IFDIR)
 

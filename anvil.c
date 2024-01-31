@@ -1,6 +1,6 @@
 /*
 
-    anvil 🔨 by sandwichman - slim, source-driven build tool for C
+    anvil 🔨 the slim, source-driven build tool for C
 
     to build the project, just compile and run this file!
 

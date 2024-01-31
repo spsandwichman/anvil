@@ -596,7 +596,6 @@ bool fs_get_subfiles(fs_file* file, fs_file* file_array) {
     char path[MAX_PATH] = {0};
     snprintf(path, MAX_PATH, "%s\\*", path_cstr);
     find = FindFirstFile(path, &find_data);
-    printf("Finding first file for: %s\n", path);
     free(path_cstr);
 
     if(find == INVALID_HANDLE_VALUE) return false;
@@ -622,7 +621,6 @@ bool fs_get_subfiles(fs_file* file, fs_file* file_array) {
     }
 #ifdef _WIN32
     int i = 0;
-    printf("Finding next file for %s\n", find_data.cFileName);
     do
     {
         if (strcmp(find_data.cFileName, ".") == 0) continue;

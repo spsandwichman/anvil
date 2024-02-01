@@ -7,7 +7,7 @@ Just modify Anvil's settings to suit your project, then compile and run it:
 $ cc ./anvil.c -o anvil
 $ ./anvil
 ```
-and viola! You can try this out on the example project included, or see it in action in the compiler for the [Mars programming language](https://github.com/orbit-systems/mars/blob/main/anvil.c).
+and voila! You can try this out on the example project included, or see it in action in the compiler for the [Mars programming language](https://github.com/orbit-systems/mars/blob/main/anvil.c).
 
 # Usage
 Anvil needs this information about your project.

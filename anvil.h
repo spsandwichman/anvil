@@ -199,6 +199,8 @@ void build(); // main function in anvil.c
 
 int main(int argc, char** argv) {
 
+
+
     char* prelim_cc;
 
     // detect compiler if not provided
@@ -224,9 +226,17 @@ int main(int argc, char** argv) {
     fs_file anvil_prog;
     fs_get(to_string(argv[0]), &anvil_prog);
     if (timespec_greater(anvil_c.last_mod, anvil_prog.last_mod) || timespec_greater(anvil_h.last_mod, anvil_prog.last_mod)) {
+
+        if (fs_exists(to_string("./anvilold"))) {
+            execute("rm -f anvilold");
+            clear(cmd);
+        }
+
+        rename(argv[0], "./anvilold");
+
         sprintf(cmd, "%s anvil.c -o anvil", prelim_cc);
         system(cmd);
-        return system("./anvil");
+        return system(argv[0]);
     } else {
         build();
         return 0;
@@ -498,7 +508,13 @@ bool fs_get(string path, fs_file* file) {
 
     file->path = string_clone(path);
     file->size = statbuffer.st_size;
+
+#if !(defined(MINGW32) || defined(__MINGW32__) || defined(_WIN32))
     file->last_mod = statbuffer.st_mtim;
+#else
+    file->last_mod = (struct timespec){.tv_sec = statbuffer.st_mtime, 0};
+#endif
+
 
 #ifdef S_ISREG
     if      (S_ISREG(statbuffer.st_mode))  file->type = oft_regular;

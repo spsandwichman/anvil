@@ -199,7 +199,10 @@ void build(); // main function in anvil.c
 
 int main(int argc, char** argv) {
 
-
+    if (fs_exists(to_string("./anvilold"))) {
+        execute("rm -f anvilold");
+        clear(cmd);
+    }
 
     char* prelim_cc;
 

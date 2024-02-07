@@ -2,8 +2,6 @@
 
 void build() {
 
-    printf("lmfaao\n");
-
     anvil_build();
 
 }
